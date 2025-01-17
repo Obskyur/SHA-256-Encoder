@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SHA-256 Encoder (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "SHA-256 Encoder (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
