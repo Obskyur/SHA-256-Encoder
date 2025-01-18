@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,14 +10,14 @@ internal class App
 {
     public State State { get; private set; }
     public Server Server { get; private set; }
-    public App() {
+    public App()
+    {
         this.State = new State();
         this.Server = new Server(this.State);
     }
 
-    public async Task Submit()
+    public string GetHash(string s)
     {
-        await Server.Authenticate(State.Username, State.Password);
-        await Server.Verify(State.SessionId, State.Username, State.Password);
+        return Encoder.ComputeSha256Hash(s);
     }
 }

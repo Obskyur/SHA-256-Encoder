@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Shapes;
 using SHA_256_Encoder.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -25,23 +26,17 @@ namespace SHA_256_Encoder
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        private Models.App App { get; set; } = new Models.App();
-        private BoolToBrushConverter BoolToBrushConverter { get; set; } = new BoolToBrushConverter();
+        public new static MainWindow Current { get; private set; }
+        private Controllers.AppController AppController { get; set; } = new Controllers.AppController();
         public MainWindow()
         {
             this.InitializeComponent();
             this.Width = 400;
             this.Height = 400;
-            this.authIcon.Fill = (RadialGradientBrush)BoolToBrushConverter.Convert(
-                App.State.IsAuthenticated, 
-                typeof(RadialGradientBrush), 
-                null, 
-                "");
-            this.verifiedIcon.Fill = (RadialGradientBrush)BoolToBrushConverter.Convert(
-                App.State.IsVerified, 
-                typeof(RadialGradientBrush), 
-                null, 
-                "");
+            Current = this;
+            this.authIcon.Fill = AppController.GetColor(AppController.IsAuthenticated);
+            this.verifiedIcon.Fill = AppController.GetColor(AppController.IsVerified);
+            AppController.PropertyChanged += AppController_PropertyChanged;
         }
 
         public double Width
@@ -56,9 +51,49 @@ namespace SHA_256_Encoder
             set { this.AppWindow.Resize(new Windows.Graphics.SizeInt32((int)this.Width, (int)value)); }
         }
 
-        private void submitButton_Click(object sender, RoutedEventArgs e)
+        private void SetFill(string propertyName)
         {
-            submitButton.Content = "Clicked";
+            if (propertyName == nameof(AppController.IsAuthenticated))
+            {
+                this.authIcon.Fill = AppController.GetColor(AppController.IsAuthenticated);
+            }
+            else if (propertyName == nameof(AppController.IsVerified))
+            {
+                this.verifiedIcon.Fill = AppController.GetColor(AppController.IsVerified);
+            }
+            else
+            {
+                throw new ArgumentException("Invalid property name", nameof(propertyName));
+            }
+        }
+
+        private void UsernameBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            AppController.SetUsername(this.usernameBox.Text);
+        }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            AppController.SetPassword(this.passwordBox.Password);
+        }
+
+        private async void SubmitButton_Click(object sender, RoutedEventArgs e)
+        {
+            await AppController.SubmitAsync();
+        }
+
+        private void ShowPasswordCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            passwordBox.PasswordRevealMode = PasswordRevealMode.Visible;
+        }
+
+        private void ShowPasswordCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            passwordBox.PasswordRevealMode = PasswordRevealMode.Hidden;
+        }
+        private void AppController_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            SetFill(e.PropertyName);
         }
     }
 }

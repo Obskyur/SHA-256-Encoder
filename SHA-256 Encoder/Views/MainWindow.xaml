@@ -8,19 +8,31 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBox Header="Username (SID):" PlaceholderText="Name" Margin="0,24,0,0"/>
-        <PasswordBox Width="300" Header="Password:" PlaceholderText="Enter your password" PasswordChar="#" Margin="0,24,0,0"/>
-        <Button x:Name="submitButton" Click="submitButton_Click" Margin="0,24,0,0">Submit</Button>
+    <Canvas>
+        <Canvas.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#343434" Offset="0.3"/>
+                <GradientStop Color="DarkSlateGray" Offset="1"/>
+            </LinearGradientBrush>
+        </Canvas.Background>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBox x:Name="usernameBox" Header="Username (SID):" PlaceholderText="Name" Margin="16,24,0,0" TextChanged="UsernameBox_TextChanged"/>
 
-        <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
-            <Ellipse x:Name="authIcon" Width="20" Height="20" Fill="{Binding IsAuthenticated, Converter={StaticResource BoolToBrushConverter}}" Margin="0,0,8,0"/>
-            <TextBlock Text="Is authenticated?"/>
-        </StackPanel>
+            <PasswordBox x:Name="passwordBox" Header="Password:" PlaceholderText="Enter your password" Width="300" Margin="16,24,0,0" PasswordRevealMode="Hidden" PasswordChanged="PasswordBox_PasswordChanged"/>
 
-        <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
-            <Ellipse x:Name="verifiedIcon" Width="20" Height="20" Fill="{Binding IsVerified, Converter={StaticResource BoolToBrushConverter}}" Margin="0,0,8,0"/>
-            <TextBlock Text="Is verified?"/>
+            <CheckBox x:Name="showPasswordCheckBox" Content="Show Password" Margin="16,8,0,0" Checked="ShowPasswordCheckBox_Checked" Unchecked="ShowPasswordCheckBox_Unchecked"/>
+
+            <Button x:Name="submitButton" Click="SubmitButton_Click" Margin="16,24,0,0">Submit</Button>
+
+            <StackPanel Orientation="Horizontal" Margin="16,24,0,0">
+                <Ellipse x:Name="authIcon" Width="20" Height="20" Margin="0,0,8,0"/>
+                <TextBlock Text="Is authenticated?"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="16,24,0,0">
+                <Ellipse x:Name="verifiedIcon" Width="20" Height="20" Margin="0,0,8,0"/>
+                <TextBlock Text="Is verified?"/>
+            </StackPanel>
         </StackPanel>
-    </StackPanel>
+    </Canvas>
 </Window>

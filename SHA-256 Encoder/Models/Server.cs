@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SHA_256_Encoder.Controllers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -18,20 +19,26 @@ internal class Server
         this.state = state;
     }
 
-    public async Task Authenticate(string username, string password)
+    public async Task Authenticate()
     {
         using (HttpClient client = new HttpClient())
         {
             var payload = new
             {
-                Username = username,
-                Password = password
+                username = state.Username,
+                password = state.Password
             };
 
             string jsonPayload = JsonSerializer.Serialize(payload);
             StringContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
+            await Dialog.ShowAsync("Post Request", $"Payload: {jsonPayload}");
+
             HttpResponseMessage response = await client.PostAsync($"{base_url}/login", content);
+
+            int statusCode = (int)response.StatusCode;
+            string status = response.StatusCode.ToString();
+            string message = response.ReasonPhrase;
 
             if (response.IsSuccessStatusCode)
             {
@@ -40,23 +47,26 @@ internal class Server
 
                 state.SessionId = responseData.SessionId;
                 state.Score = responseData.Score;
+                state.IsAuthenticated = true;
+
+                await Dialog.ShowAsync("Authentication", $"Status: {status}\nMessage: {message}\nSessionID: {state.SessionId}\nScore: {state.Score}");
             }
             else
             {
-                // Handle error response
+                await Dialog.ShowAsync($"ERROR: {statusCode}", $"Status: {status}\nMessage: {message}\nFailed to authenticate. Please check your username and password.");
             }
         }
     }
 
-    public async Task Verify(string sessionId, string username, string password)
+    public async Task Verify()
     {
         using (HttpClient client = new HttpClient())
         {
 
             var payload = new
             {
-                SessionId = sessionId,
-                Sha256 = ComputeSha256Hash($"{username}{password}")
+                SessionId = state.SessionId,
+                Sha256 = Encoder.ComputeSha256Hash($"{state.Username}{state.Password}")
             };
 
             string jsonPayload = JsonSerializer.Serialize(payload);
@@ -74,20 +84,6 @@ internal class Server
             {
                 // Handle error response
             }
-        }
-    }
-
-    private string ComputeSha256Hash(string rawData)
-    {
-        using (SHA256 sha256Hash = SHA256.Create())
-        {
-            byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                builder.Append(bytes[i].ToString("x2"));
-            }
-            return builder.ToString();
         }
     }
 
