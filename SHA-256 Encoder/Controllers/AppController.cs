@@ -23,9 +23,12 @@ namespace SHA_256_Encoder.Controllers
         public bool IsAuthenticated => App.State.IsAuthenticated;
         public bool IsVerified => App.State.IsVerified;
 
+        public int Score => App.State.Score;
+
         public async Task SubmitAsync()
         {
             await App.Server.Authenticate();
+            await App.Server.Verify();
         }
 
         public void SetUsername(string username)

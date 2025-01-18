@@ -32,7 +32,7 @@ internal class Server
             string jsonPayload = JsonSerializer.Serialize(payload);
             StringContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-            await Dialog.ShowAsync("Post Request", $"Payload: {jsonPayload}");
+            await Dialog.ShowAsync("Authentication Request", $"Payload: {jsonPayload}");
 
             HttpResponseMessage response = await client.PostAsync($"{base_url}/login", content);
 
@@ -45,8 +45,9 @@ internal class Server
                 string responseContent = await response.Content.ReadAsStringAsync();
                 var responseData = JsonSerializer.Deserialize<ResponseData>(responseContent);
 
-                state.SessionId = responseData.SessionId;
-                state.Score = responseData.Score;
+                message = responseData.message;
+                state.SessionId = responseData.session_id;
+                state.Score = responseData.score;
                 state.IsAuthenticated = true;
 
                 await Dialog.ShowAsync("Authentication", $"Status: {status}\nMessage: {message}\nSessionID: {state.SessionId}\nScore: {state.Score}");
@@ -65,9 +66,11 @@ internal class Server
 
             var payload = new
             {
-                SessionId = state.SessionId,
-                Sha256 = Encoder.ComputeSha256Hash($"{state.Username}{state.Password}")
+                session_id = state.SessionId,
+                sha256 = Encoder.ComputeSha256Hash($"{state.Username}{state.Password}")
             };
+
+            await Dialog.ShowAsync("Verification Request", $"Payload: {JsonSerializer.Serialize(payload)}");
 
             string jsonPayload = JsonSerializer.Serialize(payload);
             StringContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
@@ -78,18 +81,22 @@ internal class Server
             {
                 string responseContent = await response.Content.ReadAsStringAsync();
                 var responseData = JsonSerializer.Deserialize<ResponseData>(responseContent);
-                state.Score = responseData.Score;
+                state.Score = responseData.score;
+                state.IsVerified = true;
+                await Dialog.ShowAsync("Verification", $"Status: {response.StatusCode}\nMessage: {response.ReasonPhrase}\nScore: {state.Score}");
             }
             else
             {
-                // Handle error response
+                await Dialog.ShowAsync($"ERROR: {(int)response.StatusCode}", $"Status: {response.StatusCode}\nMessage: {response.ReasonPhrase}\nFailed to verify. Please try again.");
             }
         }
     }
 
     private class ResponseData
     {
-        public string SessionId { get; set; }
-        public int Score { get; set; }
+        public string session_id { get; set; }
+        public int score { get; set; }
+
+        public string message { get; set; }
     }
 }

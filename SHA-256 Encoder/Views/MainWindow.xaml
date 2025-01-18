@@ -22,8 +22,11 @@
 
             <CheckBox x:Name="showPasswordCheckBox" Content="Show Password" Margin="16,8,0,0" Checked="ShowPasswordCheckBox_Checked" Unchecked="ShowPasswordCheckBox_Unchecked"/>
 
-            <Button x:Name="submitButton" Click="SubmitButton_Click" Margin="16,24,0,0">Submit</Button>
-
+            <StackPanel Orientation="Horizontal" Margin="16,24,0,0" >
+                <Button x:Name="submitButton" Click="SubmitButton_Click">Submit</Button>
+                <TextBlock x:Name="scoreTextBlock" Text="Score: 0" VerticalAlignment="Center" Margin="54,0,0,0"/>
+            </StackPanel>
+            
             <StackPanel Orientation="Horizontal" Margin="16,24,0,0">
                 <Ellipse x:Name="authIcon" Width="20" Height="20" Margin="0,0,8,0"/>
                 <TextBlock Text="Is authenticated?"/>

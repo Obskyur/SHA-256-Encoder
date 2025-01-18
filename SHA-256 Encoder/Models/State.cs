@@ -11,10 +11,22 @@ internal class State : INotifyPropertyChanged
 {
     private bool isAuthenticated = false;
     private bool isVerified = false;
+    private int score = 0;
     public string Username { get; set; } = "";
     public string Password { get; set; } = "";
     public string SessionId { get; set; } = "";
-    public int Score { get; set; } = 0;
+    public int Score
+    {
+        get { return score; }
+        set
+        {
+            if (score != value)
+            {
+                score = value;
+                OnPropertyChanged(nameof(Score));
+            }
+        }
+    }
     public bool IsAuthenticated
     {
         get { return isAuthenticated; }
