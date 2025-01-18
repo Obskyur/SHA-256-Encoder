@@ -1,7 +1,11 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.UI;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.ComponentModel;
+using System.IO;
 
 namespace SHA_256_Encoder
 {
@@ -14,13 +18,14 @@ namespace SHA_256_Encoder
         private Controllers.AppController AppController { get; set; } = new Controllers.AppController();
         public MainWindow()
         {
+            Current = this;
             this.InitializeComponent();
             this.Width = 400;
             this.Height = 400;
-            Current = this;
             this.authIcon.Fill = AppController.GetColor(AppController.IsAuthenticated);
             this.verifiedIcon.Fill = AppController.GetColor(AppController.IsVerified);
             AppController.PropertyChanged += AppController_PropertyChanged;
+            SetTitleBar();
         }
 
         public double Width
@@ -33,6 +38,33 @@ namespace SHA_256_Encoder
         {
             get { return this.Bounds.Height; }
             set { this.AppWindow.Resize(new Windows.Graphics.SizeInt32((int)this.Width, (int)value)); }
+        }
+
+        private void SetTitleBar()
+        {
+            if (AppWindowTitleBar.IsCustomizationSupported())
+            {
+                AppWindowTitleBar titleBar = AppWindow.TitleBar;
+
+                titleBar.ForegroundColor = Colors.White;
+                titleBar.BackgroundColor = Colors.Green;
+                titleBar.ButtonForegroundColor = Colors.White;
+                titleBar.ButtonBackgroundColor = Colors.SeaGreen;
+                titleBar.ButtonHoverForegroundColor = Colors.Gainsboro;
+                titleBar.ButtonHoverBackgroundColor = Colors.DarkSeaGreen;
+                titleBar.ButtonPressedForegroundColor = Colors.Gray;
+                titleBar.ButtonPressedBackgroundColor = Colors.LightGreen;
+                titleBar.InactiveForegroundColor = Colors.Gainsboro;
+                titleBar.InactiveBackgroundColor = Colors.SeaGreen;
+                titleBar.ButtonInactiveForegroundColor = Colors.Gainsboro;
+                titleBar.ButtonInactiveBackgroundColor = Colors.SeaGreen;
+            }
+        }
+        private string GetIconPath()
+        {
+            string projectDirectory = AppContext.BaseDirectory;
+            string iconPath = Path.Combine(projectDirectory, "Assets", "encryption-icon.ico");
+            return iconPath;
         }
 
         private void TrySetFill(string propertyName)
